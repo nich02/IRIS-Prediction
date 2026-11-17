@@ -92,6 +92,15 @@
       box-shadow: 0 0 0 3px #e4f1e7;
     }
 
+    .status[data-state="error"] {
+      color: #963f32;
+    }
+
+    .status[data-state="error"] .status-dot {
+      background: #c45d4c;
+      box-shadow: 0 0 0 3px #f7e6e2;
+    }
+
     .intro {
       max-width: 660px;
       margin-bottom: 34px;
@@ -368,6 +377,12 @@
       outline-offset: 3px;
     }
 
+    .button:disabled {
+      cursor: wait;
+      opacity: 0.65;
+      transform: none;
+    }
+
     .result {
       display: flex;
       gap: 12px;
@@ -378,6 +393,10 @@
       border-radius: 14px;
       color: #244b36;
       background: #f0f7ef;
+    }
+
+    .result[hidden] {
+      display: none;
     }
 
     .result-mark {
@@ -505,7 +524,10 @@
         </span>
         Iris Lens
       </a>
-      <div class="status"><span class="status-dot" aria-hidden="true"></span>Classifier ready</div>
+      <div class="status" id="classifier-status" data-state="loading" role="status" aria-live="polite">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span id="classifier-status-text">Loading classifier...</span>
+      </div>
     </header>
 
     <main>
@@ -550,7 +572,7 @@
             <span class="unit-chip">CM</span>
           </div>
 
-          <form action="/predict" method="post">
+          <form id="prediction-form" action="/predict" method="post">
             <div class="measurements">
               <div class="field">
                 <label for="sepal-length">Sepal length</label>
@@ -581,7 +603,7 @@
                 </div>
               </div>
             </div>
-            <button class="button" type="submit">
+            <button class="button" id="predict-button" type="submit" disabled>
               Identify this iris
               <svg width="17" height="17" viewBox="0 0 20 20" fill="none" aria-hidden="true">
                 <path d="M4 10h11m-4-4 4 4-4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
@@ -589,8 +611,8 @@
             </button>
           </form>
 
-          {% if prediction_text %}
-          <div class="result" role="status" aria-live="polite">
+          <div class="result" id="prediction-result" role="status" aria-live="polite" hidden
+               data-prediction="{{ prediction_text|default('') }}">
             <span class="result-mark" aria-hidden="true">
               <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
                 <path d="m4.5 10.2 3.4 3.3 7.6-7.4" stroke="#34714D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
@@ -598,15 +620,16 @@
             </span>
             <div>
               <span class="result-label">Your result</span>
-              <p>{{ prediction_text }}</p>
+              <p id="prediction-text"></p>
             </div>
           </div>
-          {% endif %}
 
           <p class="footnote">Predictions are based on the measurements you provide.</p>
         </section>
       </section>
     </main>
   </div>
+  <script src="static/classifier.js" defer></script>
+  <script src="static/app.js" defer></script>
 </body>
 </html>
